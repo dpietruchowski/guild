@@ -22,6 +22,7 @@ public:
     Claude& systemPrompt(const QString& prompt);
     Claude& appendSystemPrompt(const QString& prompt);
     Claude& settingSources(const QStringList& sources);
+    Claude& addDir(const QString& path);
     Claude& jsonSchema(const QString& schema);
     Claude& disableSlashCommands();
     Claude& strictMcpConfig();
@@ -44,6 +45,7 @@ private:
     std::optional<QString> m_systemPrompt;
     std::optional<QString> m_appendSystemPrompt;
     std::optional<QStringList> m_settingSources;
+    QStringList m_addDirs;
     std::optional<QString> m_jsonSchema;
     std::optional<QStringList> m_tools;
 };

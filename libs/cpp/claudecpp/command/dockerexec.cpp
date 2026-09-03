@@ -23,6 +23,12 @@ DockerExec& DockerExec::env(const QString& key, const QString& value)
     return *this;
 }
 
+DockerExec& DockerExec::passEnv(const QString& key)
+{
+    m_passedEnv.append(key);
+    return *this;
+}
+
 DockerExec& DockerExec::user(const QString& name)
 {
     m_user = name;
@@ -65,6 +71,11 @@ QStringList DockerExec::arguments() const
     for (const auto& variable : m_env)
     {
         args << QStringLiteral("--env") << variable.first + QLatin1Char('=') + variable.second;
+    }
+
+    for (const QString& key : m_passedEnv)
+    {
+        args << QStringLiteral("--env") << key;
     }
 
     args << m_container;

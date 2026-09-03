@@ -15,6 +15,7 @@ public:
     DockerExec& interactive();
     DockerExec& workdir(const QString& path);
     DockerExec& env(const QString& key, const QString& value);
+    DockerExec& passEnv(const QString& key);
     DockerExec& user(const QString& name);
     DockerExec& run(const Command& command);
     DockerExec& run(const QString& program, const QStringList& arguments = QStringList());
@@ -28,6 +29,7 @@ private:
     std::optional<QString> m_workdir;
     std::optional<QString> m_user;
     QVector<QPair<QString, QString>> m_env;
+    QStringList m_passedEnv;
     QString m_innerProgram;
     QStringList m_innerArguments;
 };

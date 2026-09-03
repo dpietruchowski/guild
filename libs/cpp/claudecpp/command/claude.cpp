@@ -56,6 +56,12 @@ Claude& Claude::settingSources(const QStringList& sources)
     return *this;
 }
 
+Claude& Claude::addDir(const QString& path)
+{
+    m_addDirs.append(path);
+    return *this;
+}
+
 Claude& Claude::jsonSchema(const QString& schema)
 {
     m_jsonSchema = schema;
@@ -125,6 +131,10 @@ QStringList Claude::arguments() const
     if (m_settingSources)
     {
         args << QStringLiteral("--setting-sources") << m_settingSources->join(QLatin1Char(','));
+    }
+    for (const QString& directory : m_addDirs)
+    {
+        args << QStringLiteral("--add-dir") << directory;
     }
     if (m_jsonSchema)
     {

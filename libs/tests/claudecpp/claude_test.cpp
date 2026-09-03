@@ -47,6 +47,22 @@ TEST_F(ClaudeTest, SettingSources_EmptyListIsNotTheSameAsUnset)
     EXPECT_EQ(Claude().settingSources({}).arguments(), QStringList({ "--setting-sources", "" }));
 }
 
+TEST_F(ClaudeTest, AddDir_IsRepeatableAndKeepsItsOrder)
+{
+    Claude claude;
+    claude.addDir("/guild").addDir("/project");
+
+    EXPECT_EQ(claude.arguments(), QStringList({ "--add-dir", "/guild", "--add-dir", "/project" }));
+}
+
+TEST_F(ClaudeTest, AddDir_ComesBeforeTheVariadicTools)
+{
+    Claude claude;
+    claude.tools({ "Read" }).addDir("/guild");
+
+    EXPECT_EQ(claude.arguments(), QStringList({ "--add-dir", "/guild", "--tools", "Read" }));
+}
+
 TEST_F(ClaudeTest, Tools_AreEmittedAsSeparateArguments)
 {
     Claude claude;

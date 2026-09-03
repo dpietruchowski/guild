@@ -45,6 +45,12 @@ DockerRun& DockerRun::env(const QString& key, const QString& value)
     return *this;
 }
 
+DockerRun& DockerRun::passEnv(const QString& key)
+{
+    m_passedEnv.append(key);
+    return *this;
+}
+
 DockerRun& DockerRun::mount(const QString& source, const QString& target, bool readOnly)
 {
     m_mounts.append(Mount { source, target, readOnly });
@@ -121,6 +127,10 @@ QStringList DockerRun::arguments() const
     for (const auto& variable : m_env)
     {
         args << QStringLiteral("--env") << variable.first + QLatin1Char('=') + variable.second;
+    }
+    for (const QString& key : m_passedEnv)
+    {
+        args << QStringLiteral("--env") << key;
     }
     for (const auto& mount : m_mounts)
     {

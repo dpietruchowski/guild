@@ -26,6 +26,7 @@ public:
     DockerRun& removeOnExit();
     DockerRun& interactive();
     DockerRun& env(const QString& key, const QString& value);
+    DockerRun& passEnv(const QString& key);
     DockerRun& mount(const QString& source, const QString& target, bool readOnly = false);
     DockerRun& workdir(const QString& path);
     DockerRun& user(const QString& name);
@@ -50,6 +51,7 @@ private:
     std::optional<QString> m_cpus;
     std::optional<QString> m_network;
     QVector<QPair<QString, QString>> m_env;
+    QStringList m_passedEnv;
     QVector<Mount> m_mounts;
     QString m_innerProgram;
     QStringList m_innerArguments;

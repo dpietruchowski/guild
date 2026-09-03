@@ -77,6 +77,24 @@ TEST_F(DockerRunTest, LongLivedAgentContainer)
                             "guild-agent", "sleep", "infinity" }));
 }
 
+TEST_F(DockerRunTest, PassEnv_SendsTheKeyWithoutItsValue)
+{
+    DockerRun run("guild-agent");
+    run.passEnv("CLAUDE_CODE_OAUTH_TOKEN");
+
+    EXPECT_EQ(run.arguments(),
+              QStringList({ "run", "--env", "CLAUDE_CODE_OAUTH_TOKEN", "guild-agent" }));
+}
+
+TEST_F(DockerExecTest, PassEnv_SendsTheKeyWithoutItsValue)
+{
+    DockerExec exec("guild-john");
+    exec.passEnv("CLAUDE_CODE_OAUTH_TOKEN");
+
+    EXPECT_EQ(exec.arguments(),
+              QStringList({ "exec", "--env", "CLAUDE_CODE_OAUTH_TOKEN", "guild-john" }));
+}
+
 TEST_F(DockerRunTest, ReadOnlyMount_GetsTheRoSuffix)
 {
     DockerRun run("guild-agent");
