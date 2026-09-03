@@ -1,4 +1,5 @@
 add_subdirectory(cpp/claudecpp)
+add_subdirectory(cpp/guildcore)
 
 if(GUILD_BUILD_TESTS)
     include(FetchContent)
