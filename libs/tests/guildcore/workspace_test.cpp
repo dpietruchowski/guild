@@ -84,7 +84,7 @@ TEST_F(WorkspaceTest, SharedPools_SitNextToTheAgents)
 
     EXPECT_EQ(workspace.agentsPath(), root + QStringLiteral("/agents"));
     EXPECT_EQ(workspace.sharedPromptsPath(), root + QStringLiteral("/CLAUDE.d"));
-    EXPECT_EQ(workspace.sharedSkillsPath(), root + QStringLiteral("/skills"));
+    EXPECT_EQ(workspace.sharedSkillsPath(), root + QStringLiteral("/.claude/skills"));
 }
 
 TEST_F(WorkspaceTest, AgentNames_AreTheDirectoriesUnderAgents)

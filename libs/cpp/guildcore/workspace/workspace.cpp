@@ -26,7 +26,7 @@ QString Workspace::agentsPath() const { return m_path + QStringLiteral("/agents"
 
 QString Workspace::sharedPromptsPath() const { return m_path + QStringLiteral("/CLAUDE.d"); }
 
-QString Workspace::sharedSkillsPath() const { return m_path + QStringLiteral("/skills"); }
+QString Workspace::sharedSkillsPath() const { return m_path + QStringLiteral("/.claude/skills"); }
 
 QStringList Workspace::agentNames() const
 {
