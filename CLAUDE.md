@@ -30,6 +30,8 @@ Zero komentarzy w plikach `.cpp`, `.h` i `.qml`.
 - Conventional Commits, po angielsku, tryb rozkazujący, subject małą literą.
 - **Stage'uj pliki jawnie, po nazwie.** Nigdy `git add -A` ani `git add .`.
 - Jeden commit = jedna zmiana. Nie doklejaj przy okazji niezwiązanych poprawek.
+- Body: najwyżej jeden akapit, 3–5 linii zawiniętych na 72 znakach. Nie ma go
+  wcale, jeśli subject wystarcza.
 
 ## Scratch
 
