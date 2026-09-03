@@ -16,6 +16,8 @@ public:
     QString promptFile() const;
     QString memoryPath() const;
     QString transcriptPath() const;
+    QString homePath() const;
+    QString sessionId() const;
 
 private:
     QString child(const QString& relative) const;

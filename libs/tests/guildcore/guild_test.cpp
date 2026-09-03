@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QSignalSpy>
 #include <gtest/gtest.h>
 
@@ -99,6 +100,33 @@ TEST_F(GuildTest, Run_ExecsClaudeInTheAgentsContainer)
     EXPECT_TRUE(arguments.contains(QStringLiteral("claude")));
     EXPECT_TRUE(arguments.contains(QStringLiteral("--output-format")));
     EXPECT_TRUE(arguments.contains(QStringLiteral("stream-json")));
+}
+
+TEST_F(GuildTest, Run_KeepsTheSessionOfThatAgent)
+{
+    Guild guild((Workspace(root)));
+    QSignalSpy finished(&guild, &Guild::finished);
+
+    guild.run(QStringLiteral("john"), QStringLiteral("hello"));
+
+    ASSERT_TRUE(finished.wait());
+    const QStringList arguments = recordedArguments();
+    const int flag = arguments.indexOf(QStringLiteral("--session-id"));
+    ASSERT_NE(flag, -1);
+    EXPECT_EQ(arguments.at(flag + 1), Workspace(root).agent(QStringLiteral("john")).sessionId());
+    EXPECT_FALSE(arguments.contains(QStringLiteral("--no-session-persistence")));
+}
+
+TEST_F(GuildTest, Up_CreatesTheHomeDirectoryBeforeDockerCan)
+{
+    Guild guild((Workspace(root)));
+    QSignalSpy finished(&guild, &Guild::finished);
+
+    guild.up(QStringLiteral("john"));
+
+    ASSERT_TRUE(finished.wait());
+    EXPECT_TRUE(QFileInfo(root + QStringLiteral("/agents/john/home")).isDir());
+    EXPECT_TRUE(recordedArguments().contains(root + "/agents/john/home:/home/agent"));
 }
 
 TEST_F(GuildTest, Run_SendsThePromptOnStdin)

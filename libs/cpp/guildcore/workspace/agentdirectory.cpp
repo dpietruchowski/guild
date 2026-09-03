@@ -1,6 +1,9 @@
 #include "agentdirectory.h"
 
 #include <QFileInfo>
+#include <QUuid>
+
+static const QUuid SESSION_NAMESPACE("{7c8f2d94-3b1e-4a6f-9c4d-8e2a1b0f5d73}");
 
 static bool isUsableName(const QString& name)
 {
@@ -35,6 +38,17 @@ QString AgentDirectory::promptFile() const { return child(QStringLiteral("CLAUDE
 QString AgentDirectory::memoryPath() const { return child(QStringLiteral("memory")); }
 
 QString AgentDirectory::transcriptPath() const { return child(QStringLiteral("transcript")); }
+
+QString AgentDirectory::homePath() const { return child(QStringLiteral("home")); }
+
+QString AgentDirectory::sessionId() const
+{
+    if (m_name.isEmpty())
+    {
+        return QString();
+    }
+    return QUuid::createUuidV5(SESSION_NAMESPACE, m_name.toUtf8()).toString(QUuid::WithoutBraces);
+}
 
 QString AgentDirectory::child(const QString& relative) const
 {

@@ -43,7 +43,8 @@ TEST_F(AgentContainerTest, Create_MountsTheAgentDirectoryAndSleeps)
         container().createCommand().arguments(),
         QStringList({ "run", "--detach", "--name", "guild-john", "--env", "HOME=/home/agent",
                       "--env", "CLAUDE_CODE_OAUTH_TOKEN", "--volume", root + "/agents/john:/work",
-                      "--workdir", "/work", "guild-agent:latest", "sleep", "infinity" }));
+                      "--volume", root + "/agents/john/home:/home/agent", "--workdir", "/work",
+                      "guild-agent:latest", "sleep", "infinity" }));
 }
 
 TEST_F(AgentContainerTest, Create_MountsTheSharedPoolReadOnlyWhenItExists)
@@ -58,7 +59,7 @@ TEST_F(AgentContainerTest, Create_SkipsTheSharedPoolWhenThereIsNone)
 {
     const QStringList arguments = container().createCommand().arguments();
 
-    EXPECT_EQ(arguments.count(QStringLiteral("--volume")), 1);
+    EXPECT_EQ(arguments.count(QStringLiteral("--volume")), 2);
 }
 
 TEST_F(AgentContainerTest, Create_NeverPutsTheTokenValueInArgv)

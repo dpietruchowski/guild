@@ -1,5 +1,7 @@
 #include "guild.h"
 
+#include <QDir>
+
 #include "claudecpp/command/claude.h"
 #include "guildcore/agent/agentcontainer.h"
 
@@ -32,6 +34,8 @@ void Guild::up(const QString& agent)
         return;
     }
 
+    QDir().mkpath(directory.homePath());
+
     m_runner.start(AgentContainer(m_workspace, directory, m_image).createCommand());
     m_runner.closeInput();
 }
@@ -56,8 +60,8 @@ void Guild::run(const QString& agent, const QString& prompt)
     claude.print()
         .verbose()
         .outputFormat(OutputFormat::StreamJson)
-        .noSessionPersistence()
-        .skipPermissions();
+        .skipPermissions()
+        .sessionId(directory.sessionId());
 
     if (container.hasSharedPool())
     {

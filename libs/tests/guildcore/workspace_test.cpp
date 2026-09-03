@@ -136,6 +136,23 @@ TEST_F(WorkspaceTest, Agent_ExposesTheFilesOfItsOwnDirectory)
     EXPECT_EQ(john.promptFile(), expected + QStringLiteral("/CLAUDE.md"));
     EXPECT_EQ(john.memoryPath(), expected + QStringLiteral("/memory"));
     EXPECT_EQ(john.transcriptPath(), expected + QStringLiteral("/transcript"));
+    EXPECT_EQ(john.homePath(), expected + QStringLiteral("/home"));
+}
+
+TEST_F(WorkspaceTest, SessionId_IsDerivedFromTheNameAndNeverChanges)
+{
+    makeDirectory(QStringLiteral("agents/john"));
+    makeDirectory(QStringLiteral("agents/kate"));
+
+    const Workspace workspace(root);
+    const QString john = workspace.agent(QStringLiteral("john")).sessionId();
+
+    EXPECT_EQ(
+        john,
+        Workspace(root + QStringLiteral("/elsewhere")).agent(QStringLiteral("john")).sessionId());
+    EXPECT_NE(john, workspace.agent(QStringLiteral("kate")).sessionId());
+    EXPECT_EQ(john.length(), 36);
+    EXPECT_TRUE(AgentDirectory().sessionId().isEmpty());
 }
 
 TEST_F(WorkspaceTest, UnknownAgent_IsNotValidButStillNamesItsPlace)

@@ -43,7 +43,8 @@ DockerRun AgentContainer::createCommand() const
         .detach()
         .env(QStringLiteral("HOME"), CONTAINER_HOME)
         .passEnv(TOKEN_VARIABLE)
-        .mount(m_agent.path(), WORKDIR);
+        .mount(m_agent.path(), WORKDIR)
+        .mount(m_agent.homePath(), CONTAINER_HOME);
 
     if (hasSharedPool())
     {
