@@ -22,7 +22,6 @@ source of truth.
   agents/
     john/                       mounted at /work
       CLAUDE.md                 identity; the CLI assembles it itself
-      guild.json                image and mounts
       .claude/
         settings.json           model, permissions
         agents/                 john's own subagents
@@ -42,10 +41,9 @@ The directory *is* the agent's identity, and it is an ordinary Claude Code
 project. Measured: switching the working directory switches which `CLAUDE.md` and
 which skills the CLI assembles, and two agent directories never see each other's.
 
-Nothing here is a Guild format except `guild.json`, which carries the two facts
-Claude Code has no concept of: which image to run and what to mount. Everything
-else is a file the CLI already knows how to read, which also means the agent can
-edit its own configuration with the tools it already has.
+No file here is a Guild format. Every one of them is a file the CLI already knows
+how to read, which also means the agent can edit its own configuration with the
+tools it already has.
 
 There is no central roster file. The list of agents is the list of directories
 under `agents/`, so two agents creating a third at the same time cannot corrupt
@@ -140,8 +138,12 @@ the only one left that matters.
 Three things to know going in:
 
 1. **The token still crosses the boundary.** A container does not remove the auth
-   problem. `claude setup-token` produces a long-lived subscription token,
-   injected as an environment variable — the one thing that must get inside.
+   problem. `claude setup-token` produces a year-long subscription token
+   (`sk-ant-oat01-…`), injected as `CLAUDE_CODE_OAUTH_TOKEN` — the one thing that
+   must get inside. That variable takes precedence over the keychain, so it
+   belongs in a file read at launch and passed to the container, never exported
+   into a shell where it would silently change how `claude` authenticates
+   everywhere else.
 2. **The network stays open** to the Anthropic API, so this is not network
    isolation.
 3. **Container startup costs.** Invoking the binary once per turn adds that cost
@@ -152,8 +154,39 @@ Three things to know going in:
 Point 3 argues for the container rather than against it: it becomes the natural
 boundary of an agent.
 
+## Nothing left to configure
+
+Once the formats are borrowed and the paths come from `Workspace` and
+`AgentDirectory`, the run recipe has no configuration file behind it:
+
+| what `docker run` needs | where it comes from |
+|---|---|
+| image | `GUILD_IMAGE`, defaulting to `guild-agent:latest` |
+| container name | derived, `guild-<agent>` |
+| mount at `/work` | `AgentDirectory::path()` |
+| shared skills, read-only | `Workspace::sharedSkillsPath()` |
+| `--add-dir` | that same path inside the container |
+| working directory | fixed, `/work` |
+| `HOME` | fixed, an empty directory |
+| token | `CLAUDE_CODE_OAUTH_TOKEN`, passed through |
+| detach, removal, limits | policy in code |
+| model, permissions, skills, subagents | the agent's own `.claude/`, which Guild never reads |
+
+Two environment variables and two classes. A `guild.json` was drafted for the
+image and the mounts and then turned out to carry nothing that is not either
+derivable or global.
+
+One thing genuinely resists this: **which project an agent works on**. It is the
+only per-agent fact with no place to live. Deferred rather than solved — an agent
+gets its own directory and nothing else until there is an agent with real work to
+do. When that comes, the answer in keeping with everything above is a symlink,
+`agents/john/projects/guild`, since that is configuration through the file system
+again.
+
 ## Open
 
+- Whether Docker will bind-mount onto a path that is a symlink inside the mounted
+  directory, which decides whether the project symlink above can work at all.
 - Giving an agent a subset of the shared pool rather than all of it, given that
   `--add-dir` is all-or-nothing.
 - Whether `@path` imports resolve across a read-only mount and outside the
