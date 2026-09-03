@@ -1,5 +1,19 @@
 # Guild — the idea
 
+> Loose thinking, not a specification. Nothing here is binding: where a better
+> answer shows up, the better answer wins and this file gets rewritten.
+>
+> One standing rule overrides everything below — **start from what Claude Code
+> already does.** Its file formats, directory layout and flags are the default,
+> because they come from people who measured what works. Guild invents a format
+> only where Claude Code has none, and the invention has to be argued for.
+>
+> The rule is a starting point, not obedience. Claude Code solves a different
+> problem: one human session, with subagents as short-lived helpers that die
+> with it. Guild's agents outlive the invocation and own their transcripts. So
+> for anything borrowed, ask first whether the assumption behind it still holds
+> here. Borrow the format; check the model.
+
 ## The pitch
 
 You open one chat window. You talk to a single agent — the manager. Behind it

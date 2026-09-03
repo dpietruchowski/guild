@@ -14,15 +14,19 @@ source of truth.
 ## One directory per agent
 
 ```
-workspace/
-  guild.toml                    roster: who exists, who reports to whom
-  skills/                       shared pool
+~/.guild/                       GUILD_HOME, overridable for tests
+  CLAUDE.d/                     shared prompt fragments, pulled in by @import
+  .claude/skills/               shared skill pool, reached with --add-dir
     format-code/SKILL.md
     review-cpp/SKILL.md
   agents/
-    john/
-      CLAUDE.md                 identity and system prompt
-      .claude/skills/           john's own skills
+    john/                       mounted at /work
+      CLAUDE.md                 identity; the CLI assembles it itself
+      guild.json                image and mounts
+      .claude/
+        settings.json           model, permissions
+        agents/                 john's own subagents
+        skills/                 john's own skills
       memory/
         MEMORY.md               index, always loaded
         prefers-ninja.md        one fact per file
@@ -34,31 +38,42 @@ workspace/
         inbox.jsonl             envelopes from other agents, later
 ```
 
-The directory *is* the agent's identity. Measured: switching the working
-directory switches which `CLAUDE.md` and which skills the CLI assembles, and two
-agent directories never see each other's.
+The directory *is* the agent's identity, and it is an ordinary Claude Code
+project. Measured: switching the working directory switches which `CLAUDE.md` and
+which skills the CLI assembles, and two agent directories never see each other's.
+
+Nothing here is a Guild format except `guild.json`, which carries the two facts
+Claude Code has no concept of: which image to run and what to mount. Everything
+else is a file the CLI already knows how to read, which also means the agent can
+edit its own configuration with the tools it already has.
+
+There is no central roster file. The list of agents is the list of directories
+under `agents/`, so two agents creating a third at the same time cannot corrupt
+a shared file.
+
+### Model
+
+The `model` key in the agent's `.claude/settings.json`. That file sits inside the
+mounted directory, so the CLI reads it as project settings and Guild passes no
+flag at all. `--model` overrides it per invocation if a caller ever needs to, and
+`ANTHROPIC_MODEL` overrides both.
 
 ### Skills: shared pool, per-agent selection
 
 A skill is a capability, not property of one agent. Three agents needing
-`format-code` should not mean three copies that drift apart. So a shared
-`skills/` at workspace level, plus `agents/<name>/.claude/skills/` for what is
-genuinely one agent's own. Name resolution: the agent's own directory wins, so an
-override costs nothing.
+`format-code` should not mean three copies that drift apart. So a shared pool at
+`~/.guild/.claude/skills/`, plus `agents/<name>/.claude/skills/` for what is
+genuinely one agent's own.
 
-An agent should get only the skills it declares, not the whole pool, because the
-skill listing is re-sent with every request. Something like:
+The shared pool reaches the CLI through `--add-dir`. Normally that flag grants
+file access rather than configuration discovery, but skills and commands are an
+explicit exception: Claude Code loads `.claude/skills/` and `.claude/commands/`
+from every added directory. So the pool gets mounted read-only next to the agent
+and named with `--add-dir`. No symlinks, no copies, no `--plugin-dir`.
 
-```markdown
----
-model: sonnet
-skills: [format-code, review-cpp]
----
-```
-
-How a shared pool reaches the CLI is unsolved — the CLI discovers skills under
-the working directory, so a shared pool means symlinks, copies, or `--plugin-dir`
-(untested).
+Selecting a subset per agent is still open. Skill metadata is re-sent with every
+request, so a large pool is not free — but `--add-dir` is all-or-nothing, and
+per-skill selection exists only in a subagent's `skills:` frontmatter.
 
 ## Transcript in segments
 
@@ -74,16 +89,29 @@ This gives three things from one mechanism:
 Starting without history costs nothing: one segment, no compaction, empty `HEAD`.
 History arrives later by simply not deleting old segments, with no format change.
 
-## Own prompt, borrowed file formats
+## Borrowed formats, borrowed mechanisms
 
-Split the difference: write the system prompt from scratch, since the built-in
-one carries a great deal that is irrelevant to a purpose-built agent, but keep
-`SKILL.md`-with-frontmatter as the skill format. It is only a file convention, it
-costs nothing, and the model has seen it.
+Earlier plan was to invent an `agent.md` carrying both identity and plumbing.
+Dropped. The agent directory is a Claude Code project instead, and every format
+in it is one the CLI already reads:
 
-One trap: naming the agent's prompt file `CLAUDE.md` means the CLI discovers it
-by itself. That is either exactly what is wanted or a double injection, depending
-on which isolation approach below wins.
+- `CLAUDE.md` — the identity. The CLI discovers it under the working directory,
+  which is exactly what is wanted once the container guarantees nothing else is
+  discoverable. `@path` imports come for free, so `CLAUDE.d` needs no mechanism
+  of its own.
+- `.claude/settings.json` — model and permissions. JSON, which Qt parses without
+  a dependency; the TOML-or-YAML question disappears with it.
+- `.claude/skills/<name>/SKILL.md` — `name` and `description` required,
+  `allowed-tools` and `disable-model-invocation` optional. Loading is staged:
+  metadata always, body on trigger, bundled files only when read.
+- `.claude/agents/<name>.md` — the agent's own subagents. `name` and
+  `description` required; the body replaces the system prompt rather than
+  extending it.
+
+Two levels of delegation then coexist without competing. A subagent is a helper
+that dies with the turn that spawned it. A Guild agent outlives the invocation
+and owns a transcript and a mailbox. Borrowing the file format does not mean
+borrowing the lifetime.
 
 ## Isolation: flags or a container
 
@@ -126,9 +154,9 @@ boundary of an agent.
 
 ## Open
 
-- Shared skill pool into a working directory: symlinks, copies, or
-  `--plugin-dir`? The last is untested.
-- Whether the agent's prompt file should be named `CLAUDE.md` (CLI assembles it)
-  or something else (the caller assembles it). Follows from the isolation choice.
+- Giving an agent a subset of the shared pool rather than all of it, given that
+  `--add-dir` is all-or-nothing.
+- Whether `@path` imports resolve across a read-only mount and outside the
+  project directory. Untested.
 - Compaction trigger, memory retrieval, parallelism, failure semantics — see the
   open questions in [idea.md](idea.md).
