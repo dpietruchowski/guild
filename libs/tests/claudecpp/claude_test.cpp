@@ -47,6 +47,20 @@ TEST_F(ClaudeTest, SettingSources_EmptyListIsNotTheSameAsUnset)
     EXPECT_EQ(Claude().settingSources({}).arguments(), QStringList({ "--setting-sources", "" }));
 }
 
+TEST_F(ClaudeTest, Session_FlagsAreEmittedBeforeTheVariadicTools)
+{
+    Claude claude;
+    claude.tools({ "Read" })
+        .forkSession()
+        .continueSession()
+        .resume("auth-refactor")
+        .sessionId("550e8400-e29b-41d4-a716-446655440000");
+
+    EXPECT_EQ(claude.arguments(),
+              QStringList({ "--session-id", "550e8400-e29b-41d4-a716-446655440000", "--resume",
+                            "auth-refactor", "--continue", "--fork-session", "--tools", "Read" }));
+}
+
 TEST_F(ClaudeTest, AddDir_IsRepeatableAndKeepsItsOrder)
 {
     Claude claude;

@@ -62,6 +62,30 @@ Claude& Claude::addDir(const QString& path)
     return *this;
 }
 
+Claude& Claude::sessionId(const QString& uuid)
+{
+    m_sessionId = uuid;
+    return *this;
+}
+
+Claude& Claude::resume(const QString& session)
+{
+    m_resume = session;
+    return *this;
+}
+
+Claude& Claude::continueSession()
+{
+    m_continueSession = true;
+    return *this;
+}
+
+Claude& Claude::forkSession()
+{
+    m_forkSession = true;
+    return *this;
+}
+
 Claude& Claude::jsonSchema(const QString& schema)
 {
     m_jsonSchema = schema;
@@ -131,6 +155,22 @@ QStringList Claude::arguments() const
     if (m_settingSources)
     {
         args << QStringLiteral("--setting-sources") << m_settingSources->join(QLatin1Char(','));
+    }
+    if (m_sessionId)
+    {
+        args << QStringLiteral("--session-id") << *m_sessionId;
+    }
+    if (m_resume)
+    {
+        args << QStringLiteral("--resume") << *m_resume;
+    }
+    if (m_continueSession)
+    {
+        args << QStringLiteral("--continue");
+    }
+    if (m_forkSession)
+    {
+        args << QStringLiteral("--fork-session");
     }
     for (const QString& directory : m_addDirs)
     {

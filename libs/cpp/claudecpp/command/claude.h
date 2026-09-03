@@ -23,6 +23,10 @@ public:
     Claude& appendSystemPrompt(const QString& prompt);
     Claude& settingSources(const QStringList& sources);
     Claude& addDir(const QString& path);
+    Claude& sessionId(const QString& uuid);
+    Claude& resume(const QString& session);
+    Claude& continueSession();
+    Claude& forkSession();
     Claude& jsonSchema(const QString& schema);
     Claude& disableSlashCommands();
     Claude& strictMcpConfig();
@@ -40,6 +44,10 @@ private:
     bool m_strictMcpConfig = false;
     bool m_noSessionPersistence = false;
     bool m_skipPermissions = false;
+    bool m_continueSession = false;
+    bool m_forkSession = false;
+    std::optional<QString> m_sessionId;
+    std::optional<QString> m_resume;
     std::optional<QString> m_model;
     std::optional<OutputFormat> m_outputFormat;
     std::optional<QString> m_systemPrompt;
