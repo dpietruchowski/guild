@@ -1,0 +1,10 @@
+set(COMMAND_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/command.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/claude.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/claude.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dockerrun.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dockerrun.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dockerexec.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dockerexec.cpp
+    PARENT_SCOPE
+)
