@@ -8,7 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(GUILD_BUILD_TESTS "Build unit tests" ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core Test)
+
+set(CMAKE_AUTOMOC ON)
 
 if(GUILD_BUILD_TESTS)
     enable_testing()

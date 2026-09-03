@@ -4,3 +4,5 @@
 #include "command/command.h"
 #include "command/dockerexec.h"
 #include "command/dockerrun.h"
+#include "process/commandrunner.h"
+#include "process/streamjsonparser.h"

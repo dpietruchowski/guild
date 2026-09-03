@@ -1,7 +1,9 @@
 add_subdirectory(command)
+add_subdirectory(process)
 
 add_library(claudecpp STATIC
     ${COMMAND_SOURCES}
+    ${PROCESS_SOURCES}
     claudecpp.h
 )
 

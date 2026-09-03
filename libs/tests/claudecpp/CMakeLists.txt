@@ -6,8 +6,8 @@ add_executable(claudecpp_tests ${SOURCES} ${HEADERS})
 target_link_libraries(claudecpp_tests
     PRIVATE
         Qt6::Core
+        Qt6::Test
         gtest
-        gtest_main
         claudecpp
 )
 
