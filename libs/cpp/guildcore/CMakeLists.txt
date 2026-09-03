@@ -4,6 +4,8 @@ add_subdirectory(workspace)
 add_library(guildcore STATIC
     ${AGENT_SOURCES}
     ${WORKSPACE_SOURCES}
+    guild.h
+    guild.cpp
     guildcore.h
 )
 

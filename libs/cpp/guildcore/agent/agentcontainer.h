@@ -16,6 +16,7 @@ public:
     QString name() const;
     QString workdir() const;
     QString sharedDirectory() const;
+    bool hasSharedPool() const;
 
     DockerRun createCommand() const;
     DockerExec execCommand(const Command& command) const;

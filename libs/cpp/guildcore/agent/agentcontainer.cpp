@@ -31,6 +31,11 @@ QString AgentContainer::workdir() const { return WORKDIR; }
 
 QString AgentContainer::sharedDirectory() const { return SHARED_DIRECTORY; }
 
+bool AgentContainer::hasSharedPool() const
+{
+    return QFileInfo(m_workspace.sharedSkillsPath()).isDir();
+}
+
 DockerRun AgentContainer::createCommand() const
 {
     DockerRun run(m_image);
@@ -40,10 +45,10 @@ DockerRun AgentContainer::createCommand() const
         .passEnv(TOKEN_VARIABLE)
         .mount(m_agent.path(), WORKDIR);
 
-    const QString skills = m_workspace.sharedSkillsPath();
-    if (QFileInfo(skills).isDir())
+    if (hasSharedPool())
     {
-        run.mount(skills, SHARED_DIRECTORY + QStringLiteral("/.claude/skills"), true);
+        run.mount(m_workspace.sharedSkillsPath(),
+                  SHARED_DIRECTORY + QStringLiteral("/.claude/skills"), true);
     }
 
     run.workdir(WORKDIR).run(QStringLiteral("sleep"), { QStringLiteral("infinity") });
